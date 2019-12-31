@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>simulation marcov carlos</title>
+</head>
+<body>
+   <div style="padding: 20px">
+   	<label>Enter function </label>
+   	<input type="text" placeholder="enter function f(x)="/><br/>
+   	<lable>Enter the value of a</lable>
+   	<input type="number" placeholder="a" /><br/>
+   	<label>Enter the value of b</label>
+   	<input type="number" placeholder="b"/><br/><br/>
+   </div>
+   <canvas id="myCanvas" width="500px" height="500px" style="border:0px solid black">
+   </canvas>
+
+   <h2 id="hits">No of hits=  </h2><br/> 
+    <h2 id="throw">total throw =  </h2><br/>
+     <h2 id="area">Area  =  </h2><br/>
+     <h2 id="pi">Pi  =  </h2><br/>
+
+<script type="text/javascript">
+
+	var hitsDisplay = document.getElementById('hits');
+	var throwDisplay = document.getElementById('throw');
+	var areaDisplay = document.getElementById('area');
+	var piDisplay = document.getElementById('pi');
+
+	var canvas = document.getElementById('myCanvas');
+	var ctx = canvas.getContext('2d');
+
+	var canvasWidth= canvas.width;
+	var canvasHeight = canvas.height;
+
+	var origin = {'x':10, 'y' : Math.floor(canvasHeight/1.5)};
+
+	var pixWidth = 1;
+	var pixHeight = 1;
+	var scale = 300;
+
+	var a = 20/scale;
+	var b = 250/scale;
+	
+
+
+	function drawPixel(x,y,p,q){
+		//ctx.beginPath();
+		//ctx.fillRect(x,canvasHeight-y,pixWidth,pixHeight);
+
+		ctx.beginPath();
+		ctx.moveTo(p,q);
+		ctx.lineTo(origin.x+scale*x,origin.y-scale*y);
+		ctx.stroke();
+		return {'x':origin.x+scale*x,'y':origin.y-scale*y};   // 'y' = canvasHeight - y ; to flip 180deg 
+	}
+
+	function func(x){
+		return Math.sqrt(1-x*x);
+	}
+
+	function drawRec(x0,x1){  // x0 [0,1]
+		var y0 = func(x0);
+		var y1 = func(x1);
+
+		var h = (y0 > y1) ? y0:y1;
+
+		ctx.beginPath();
+		ctx.rect(origin.x+x0*scale,origin.y-h*scale,x1*scale-x0*scale,h*scale);
+		ctx.stroke();
+
+		return h;
+
+	}
+
+	function markPoint(x,y){
+		ctx.fillRect(x*scale,origin.y-y*scale,pixWidth,pixHeight);
+	}
+
+
+	var maxY = drawRec(a,b); // c 
+
+var prv = {'x':undefined,'y':undefined};
+var y;
+     for (x = 0 ; x < Math.floor(canvasWidth/scale) ; x=x+0.001){
+     	y = func(x);
+     			 prv = drawPixel(x,y,prv.x,prv.y);
+
+     }
+
+
+
+    //----------------------------------------------------------
+    	// monte carlo simulation 
+    //----------------------------------------------------------
+
+    var n = 0 ;
+    var N = 10000;
+
+    for (i = 0 ; i < N ; i++){
+
+    	maxX = origin.x/scale + b + 0.000001;
+    	minX = origin.x/scale + a ;
+
+
+
+    	randX = Math.random()*(maxX-minX)+minX;
+    	randY = Math.random()*(maxY+0.000001); //+0.001 to include maxY also ; ranging from o to maxY including)
+
+    	ctx.fillStyle = 'black';
+    	if (randY <= func(randX)){
+    			n++;
+    				ctx.fillStyle = 'red';
+    		}
+    	markPoint(randX,randY);
+
+    	await new Promise(r => setTimeout(r, 20));
+
+    }
+
+    var Ac = n/N;
+    var pi = 4*Ac;
+    hitsDisplay.innerText += " "+n;
+    throwDisplay.innerText += " "+N;
+    areaDisplay.innerText += " "+Ac;
+    piDisplay.innerText += " "+pi;
+ 
+
+</script>
+
+
+
+
+ </body>
+</html>
