@@ -12,7 +12,8 @@
    	<label>Enter the value of b</label>
    	<input type="number" placeholder="b"/><br/><br/>
    </div>
-   <canvas id="myCanvas" width="500px" height="500px" style="border:0px solid black">
+   <h2>Graph :</h2>
+   <canvas id="myCanvas" width="500px" height="500px" style="border:0px solid black;padding-left:10% ">
    </canvas>
 
    <h2 id="hits">No of hits=  </h2><br/> 
@@ -33,21 +34,58 @@
 	var canvasWidth= canvas.width;
 	var canvasHeight = canvas.height;
 
-	var origin = {'x':10, 'y' : Math.floor(canvasHeight/1.5)};
+	var origin = {'x':20, 'y' : Math.floor(canvasHeight/1.5)};
 
 	var pixWidth = 1;
 	var pixHeight = 1;
-	var scale = 300;
+	var scale = 300;  // 300 for circl 
 
-	var a = 20/scale;
-	var b = 250/scale;
+	//var a = 20/scale;
+	//var b = 250/scale;
 	
+  var a = 0;
+  var b = 1;
 
+  function drawAxis(){
+    ctx.strokeStyle ="#02194d";
+    //Y-axis
+    ctx.beginPath();
+    ctx.moveTo(origin.x,0);
+    ctx.lineTo(origin.x,canvasHeight);
+    ctx.stroke();
+    //x-axis
 
-	function drawPixel(x,y,p,q){
+    ctx.beginPath();
+    ctx.moveTo(0,origin.y);
+    ctx.lineTo(canvasWidth,origin.y);
+    ctx.stroke();
+
+    // intervals
+      drawInterval(a);
+      drawInterval(b);
+
+  }
+
+  function drawInterval(x){
+    var intervalLineHeight = 20;
+    var offset = 25; // text offset 
+    x = x*scale; 
+    ctx.strokeStyle="green";
+    ctx.font ="10px Arial";
+    ctx.beginPath();
+    ctx.moveTo(origin.x+x,origin.y+Math.floor(intervalLineHeight/2));
+    ctx.lineTo(origin.x+x,origin.y-Math.floor(intervalLineHeight/2));
+    ctx.stroke();
+    ctx.fillText(a,origin.x+x,origin.y-Math.floor(intervalLineHeight/2)+offset);
+
+  }
+
+ 
+	function drawPixel(x,y,p,q,thickness){ //to draw curve
 		//ctx.beginPath();
 		//ctx.fillRect(x,canvasHeight-y,pixWidth,pixHeight);
-
+    ctx.strokeStyle ="blue";
+    ctx.lineWidth = thickness;
 		ctx.beginPath();
 		ctx.moveTo(p,q);
 		ctx.lineTo(origin.x+scale*x,origin.y-scale*y);
@@ -56,7 +94,8 @@
 	}
 
 	function func(x){
-		return Math.sqrt(1-x*x);
+		 return Math.sqrt(1-x*x); //circle
+   // return x*x-x+3;
 	}
 
 	function drawRec(x0,x1){  // x0 [0,1]
@@ -74,17 +113,18 @@
 	}
 
 	function markPoint(x,y){
-		ctx.fillRect(x*scale,origin.y-y*scale,pixWidth,pixHeight);
+		ctx.fillRect(origin.x+(x*scale),origin.y-y*scale,pixWidth,pixHeight);
 	}
 
-
+//--------main----------------
 	var maxY = drawRec(a,b); // c 
-
+  drawAxis();
 var prv = {'x':undefined,'y':undefined};
 var y;
-     for (x = 0 ; x < Math.floor(canvasWidth/scale) ; x=x+0.001){
-     	y = func(x);
-     			 prv = drawPixel(x,y,prv.x,prv.y);
+     for (x = 0 ; x < Math.floor(canvasWidth/scale); x=x+0.001){
+
+       	y = func(x);
+     			 prv = drawPixel(x,y,prv.x,prv.y,2);
 
      }
 
@@ -99,9 +139,11 @@ var y;
 
     for (i = 0 ; i < N ; i++){
 
-    	maxX = origin.x/scale + b + 0.000001;
-    	minX = origin.x/scale + a ;
+    	//maxX = origin.x/scale + b + 0.000001;
+    	//minX = origin.x/scale + a ;
 
+      maxX = b;
+      minX = a;
 
 
     	randX = Math.random()*(maxX-minX)+minX;
@@ -114,7 +156,7 @@ var y;
     		}
     	markPoint(randX,randY);
 
-    	await new Promise(r => setTimeout(r, 20));
+    	
 
     }
 
